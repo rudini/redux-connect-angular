@@ -2,7 +2,7 @@ import { Injectable, signal } from '@angular/core';
 
 @Injectable({ providedIn: 'root' })
 export class ButtonStore {
-  private _label = signal('Click me');
+  private _label = signal('Click me now!');
   label = this._label.asReadonly();
 
   handleClick(value: string) {
@@ -10,4 +10,3 @@ export class ButtonStore {
     this._label.set('Thanks!');
   }
 }
-

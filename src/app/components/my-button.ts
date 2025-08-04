@@ -12,8 +12,8 @@ import { Component, output, input, model } from '@angular/core';
   `,
 })
 export class MyButtonComponent {
-  label = input.required<string>();
-  clicked = output<string>();
+  label = input.required<string>(); // Example of a required input
+  clicked = output<string>(); // Example of an output event
   test = model<string>('default value'); // Example of a model input
 
   clickedHandler() {

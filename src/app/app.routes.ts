@@ -15,17 +15,17 @@ type o = ExtractOutputs<MyButtonComponent>;
 export const routes: Routes = [
   {
     path: '',
-    component: connect(MyButtonComponent, () => { // <--- Here's the change: options is now a function
-      // Inject the store once inside this factory function
+    component: connect(MyButtonComponent, () => {
+      // Inject the store once inside this factory function or use imported functions
       const buttonStore = inject(ButtonStore);
 
       return {
         inputs: {
-          label: buttonStore.label(), // Use the injected store instance
-          test: 'test', // Example of another input
+          label: buttonStore.label, // Use the injected store instance
+          test: () => 'set from route', // Example of one time binding input
         },
         outputs: {
-          clicked: (val: string) => buttonStore.handleClick(val), // Use the injected store instance
+          clicked: (val: string) => (console.log('Button clicked:', val), buttonStore.handleClick(val)), // Use the injected store instance
           testChange: (value: string) => console.log('Model changed:', value), // Example of a model output
         },
       };
