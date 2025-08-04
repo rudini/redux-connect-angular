@@ -17,7 +17,7 @@ export class MyButtonComponent {
   test = model<string>('default value'); // Example of a model input
 
   clickedHandler() {
-    this.clicked.emit(this.label());
+    this.clicked.emit(this.label()); // Emit the clicked event with the label or a default message
     this.test.set('Button clicked!'); // Update the model input
   }
 }
