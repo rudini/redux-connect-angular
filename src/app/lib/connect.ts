@@ -13,7 +13,7 @@ import { Signal, OutputEmitterRef } from '@angular/core';
 export type ExtractInputs<T> = {
   [K in keyof T as T[K] extends Signal<infer U>
     ? K
-    : never]?: T[K] extends Signal<infer U> ? () => U : never;
+    : never]: T[K] extends Signal<infer U> ? () => U : never;
 };
 
 export type ExtractOutputs<T> = {
