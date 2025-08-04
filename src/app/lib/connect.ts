@@ -1,9 +1,11 @@
 import {
   Component,
+  ComponentRef,
   EnvironmentInjector,
   inject,
   inputBinding,
   ModelSignal,
+  OnDestroy,
   outputBinding,
   Type,
   ViewContainerRef,
@@ -49,9 +51,10 @@ export function connect<TComp extends Type<any>>(
   @Component({
     template: `<ng-container #vc></ng-container>`,
   })
-  class ConnectedWrapper {
+  class ConnectedWrapper implements OnDestroy {
     private readonly envInjector = inject(EnvironmentInjector);
     private readonly vcr = inject(ViewContainerRef);
+    private compRef: ComponentRef<TComp> | undefined;
 
     constructor() {
       const bindings = optionsFactory();
@@ -65,6 +68,9 @@ export function connect<TComp extends Type<any>>(
         environmentInjector: this.envInjector,
         bindings: [...inputBindings, ...outputBindings],
       });
+    }
+    ngOnDestroy(): void {
+      this.compRef?.destroy();
     }
   }
 
