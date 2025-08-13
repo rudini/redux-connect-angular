@@ -28,6 +28,7 @@ export class MyButtonComponent implements OnDestroy {
   label = input.required<string>(); // Example of a required input
   clicked = output<string>(); // Example of an output event
   test = model<string>('default value'); // Example of a model input
+  user = input<string>();
 
   clickedHandler() {
     this.clicked.emit(this.label()); // Emit the clicked event with the label or a default message
