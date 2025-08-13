@@ -38,6 +38,10 @@ export const routes: Routes = [
     loadComponent: () => import('./components/my-button').then(m => bindStore(ButtonStore, m.MyButtonComponent)),
   },
   {
+    path: 'wrapped',
+    loadComponent: () => import('./components/my-button').then(m => m.Wrapped),
+  },
+  {
     path: 'another',
     component: TestComponent,
   },

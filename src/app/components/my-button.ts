@@ -1,5 +1,14 @@
-import { Component, output, input, model, OnDestroy } from '@angular/core';
+import {
+  Component,
+  output,
+  input,
+  model,
+  OnDestroy,
+  inject,
+} from '@angular/core';
 import { RouterLink, RouterModule } from '@angular/router';
+import { connect } from '../lib/connect';
+import { ButtonStore } from '../store/store';
 
 @Component({
   standalone: true,
@@ -25,7 +34,25 @@ export class MyButtonComponent implements OnDestroy {
     this.test.set('Button clicked!'); // Update the model input
   }
 
-    ngOnDestroy(): void {
-      console.log('MyButtonComponent destroyed'); // Cleanup logic if needed
+  ngOnDestroy(): void {
+    console.log('MyButtonComponent destroyed'); // Cleanup logic if needed
   }
 }
+
+export const Wrapped = connect(MyButtonComponent, () => {
+  // Inject the store once inside this factory function or use imported functions
+  const buttonStore = inject(ButtonStore);
+
+  return {
+    inputs: {
+      label: buttonStore.label, // Use the injected store instance
+      test: () => 'set from route', // Example of one time binding input
+    },
+    outputs: {
+      clicked: (val: string) => (
+        console.log('Button clicked:', val), buttonStore.handleClicked(val)
+      ), // Use the injected store instance
+      testChange: (value: string) => console.log('Model changed:', value), // Example of a model output
+    },
+  };
+});
