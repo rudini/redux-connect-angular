@@ -2,11 +2,12 @@ import { Injectable, signal } from '@angular/core';
 
 @Injectable({ providedIn: 'root' })
 export class ButtonStore {
-  private _label = signal('Click me now!');
-  label = this._label.asReadonly();
+  #_label = signal('Click me now!');
+  label = this.#_label.asReadonly();
 
-  handleClick(value: string) {
+  handleClicked(value: string) {
     console.log('Clicked with:', value);
-    this._label.set('Thanks!');
+    this.#_label.set('Thanks!');
   }
 }
+  
