@@ -48,7 +48,7 @@ export function connectState<
       const outputBindings = Object.entries(bindings.outputs || {}).map(
         ([key, handler]) => outputBinding(key, handler as (value: any) => void)
       );
-      this.vcr.createComponent(component, {
+      this.compRef = this.vcr.createComponent(component, {
         environmentInjector: this.envInjector,
         bindings: [...inputBindings, ...outputBindings],
       });
