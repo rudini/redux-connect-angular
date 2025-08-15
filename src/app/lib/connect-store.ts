@@ -22,7 +22,7 @@ export function bindStore<T extends Type<any>, TComp extends Type<any>>(
         [key]: store[key],
       }),
       {}
-    ) as StrictExtractInputs<InstanceType<TComp>>;
+    ) as StrictExtractInputs<TComp>;
 
     const storeOutputs = Object.getOwnPropertyNames(
       Object.getPrototypeOf(store)
@@ -36,7 +36,7 @@ export function bindStore<T extends Type<any>, TComp extends Type<any>>(
           store[key](value),
       }),
       {}
-    ) as StrictExtractOutputs<InstanceType<TComp>>;
+    ) as StrictExtractOutputs<TComp>;
 
     return {
       inputs,
