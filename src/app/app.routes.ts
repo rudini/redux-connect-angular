@@ -57,7 +57,7 @@ export const routes: Routes = [
           m.MyButtonComponent,
           [ButtonStore, GlobalStore] as const,
           (buttonstate, globalstate) => {
-            return defineConnectOptions<typeof MyButtonComponent>({
+            return defineConnectOptions<MyButtonComponent>({
               inputs: {
                 label: buttonstate.label,
                 test: () => 'set from route',
