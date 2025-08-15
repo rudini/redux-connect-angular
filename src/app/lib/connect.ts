@@ -38,6 +38,23 @@ export type ExtractOutputs<T> = {
     : never]: T[K] extends ModelSignal<infer U> ? (value: U) => void : never;
 };
 
+type NoExtraProps<Shape, Actual extends Shape> =
+  Actual & { [K in Exclude<keyof Actual, keyof Shape>]: never };
+
+type StrictExtractInputs<T>  = NoExtraProps<ExtractInputs<T>,  ExtractInputs<T>>;
+type StrictExtractOutputs<T> = NoExtraProps<ExtractOutputs<T>, ExtractOutputs<T>>;
+
+type StrictConnectOptions<TComp extends Type<any>> = {
+  inputs: StrictExtractInputs<InstanceType<TComp>>;
+  outputs: StrictExtractOutputs<InstanceType<TComp>>;
+};
+
+export function defineConnectOptions<TComp extends Type<any>>(
+  options: StrictConnectOptions<TComp>
+): StrictConnectOptions<TComp> {
+  return options;
+}
+
 export function connect<TComp extends Type<any>>(
   component: TComp,
   optionsFactory: () => {

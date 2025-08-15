@@ -2,8 +2,8 @@ import { Routes } from '@angular/router';
 
 import { ButtonStore } from './store/store';
 
-import { inject } from '@angular/core';
-import { connect } from './lib/connect';
+import { inject, Type } from '@angular/core';
+import { connect, defineConnectOptions } from './lib/connect';
 import { TestComponent } from './components/test';
 import { bindStore } from './lib/connect-store';
 import { MyButtonComponent } from './components/my-button';
@@ -14,6 +14,8 @@ import { GlobalStore } from './store/global-store';
 // what if we can use dependency injection to inject the store into the routes?
 // what if we can use imported functions like static selectors form signal store to bind inputs and outputs?
 
+
+
 export const routes: Routes = [
   {
     path: '',
@@ -22,7 +24,7 @@ export const routes: Routes = [
       const buttonStore = inject(ButtonStore);
       const globalStore = inject(GlobalStore);
 
-      return {
+      return defineConnectOptions<typeof MyButtonComponent>({
         inputs: {
           label: () => buttonStore.label(), // Use the injected store instance
           test: () => 'set from route', // Example of one time binding input
@@ -34,7 +36,7 @@ export const routes: Routes = [
           ), // Use the injected store instance
           testChange: (value: string) => console.log('Model changed:', value), // Example of a model output
         },
-      };
+      });
     }),
   },
   {
@@ -48,7 +50,7 @@ export const routes: Routes = [
   {
     path: 'connect-with-states',
     loadComponent: () => import('./components/my-button').then(m => connectState(m.MyButtonComponent, [ButtonStore, GlobalStore] as const, (buttonstate, globalstate) => {
-      return {
+      return defineConnectOptions<typeof MyButtonComponent>({
         inputs: {
           label: buttonstate.label,
           test: () => 'set from route',
@@ -60,7 +62,7 @@ export const routes: Routes = [
           ),
           testChange: (value: string) => console.log('Model changed:', value),
         },
-      };
+      });
     })),
   },
   {
