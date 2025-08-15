@@ -28,7 +28,7 @@ export function connectState<
   })
 ): Type<any> {
   @Component({
-    template: ''
+    template: '',
   })
   class ConnectedWrapper implements OnDestroy {
     readonly #envInjector = inject(EnvironmentInjector);

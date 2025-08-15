@@ -1,5 +1,10 @@
 import { inject, isSignal, Type } from '@angular/core';
-import { connect, ExtractOutputs, StrictExtractInputs, StrictExtractOutputs } from './connect';
+import {
+  connect,
+  ExtractOutputs,
+  StrictExtractInputs,
+  StrictExtractOutputs,
+} from './connect';
 
 export function bindStore<T extends Type<any>, TComp extends Type<any>>(
   type: T,
@@ -17,7 +22,7 @@ export function bindStore<T extends Type<any>, TComp extends Type<any>>(
         [key]: store[key],
       }),
       {}
-    ) as StrictExtractInputs<InstanceType<TComp>>
+    ) as StrictExtractInputs<InstanceType<TComp>>;
 
     const storeOutputs = Object.getOwnPropertyNames(
       Object.getPrototypeOf(store)

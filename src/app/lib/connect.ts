@@ -43,7 +43,10 @@ type NoExtraProps<Shape, Actual extends Shape> = Actual & {
   [K in Exclude<keyof Actual, keyof Shape>]: never;
 };
 
-export type StrictExtractInputs<T> = NoExtraProps<ExtractInputs<T>, ExtractInputs<T>>;
+export type StrictExtractInputs<T> = NoExtraProps<
+  ExtractInputs<T>,
+  ExtractInputs<T>
+>;
 export type StrictExtractOutputs<T> = NoExtraProps<
   ExtractOutputs<T>,
   ExtractOutputs<T>
