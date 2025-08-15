@@ -2,7 +2,7 @@ import { Routes } from '@angular/router';
 
 import { ButtonStore } from './store/store';
 
-import { inject, Type } from '@angular/core';
+import { inject } from '@angular/core';
 import { connect, defineConnectOptions } from './lib/connect';
 import { TestComponent } from './components/test';
 import { bindStore } from './lib/connect-store';
@@ -14,8 +14,6 @@ import { GlobalStore } from './store/global-store';
 // what if we can use dependency injection to inject the store into the routes?
 // what if we can use imported functions like static selectors form signal store to bind inputs and outputs?
 
-
-
 export const routes: Routes = [
   {
     path: '',
@@ -24,7 +22,7 @@ export const routes: Routes = [
       const buttonStore = inject(ButtonStore);
       const globalStore = inject(GlobalStore);
 
-      return defineConnectOptions<typeof MyButtonComponent>({
+      return defineConnectOptions<MyButtonComponent>({
         inputs: {
           label: () => buttonStore.label(), // Use the injected store instance
           test: () => 'set from route', // Example of one time binding input
@@ -41,29 +39,42 @@ export const routes: Routes = [
   },
   {
     path: 'bindStore',
-    loadComponent: () => import('./components/my-button').then(m => bindStore(ButtonStore, m.MyButtonComponent)),
+    loadComponent: () =>
+      import('./components/my-button').then((m) =>
+        bindStore(ButtonStore, m.MyButtonComponent)
+      ),
   },
   {
     path: 'wrapped',
-    loadComponent: () => import('./components/my-button').then(m => m.Wrapped),
+    loadComponent: () =>
+      import('./components/my-button').then((m) => m.Wrapped),
   },
   {
     path: 'connect-with-states',
-    loadComponent: () => import('./components/my-button').then(m => connectState(m.MyButtonComponent, [ButtonStore, GlobalStore] as const, (buttonstate, globalstate) => {
-      return defineConnectOptions<typeof MyButtonComponent>({
-        inputs: {
-          label: buttonstate.label,
-          test: () => 'set from route',
-          user: globalstate.user,
-        },
-        outputs: {
-          clicked: (val: string) => (
-            console.log('Button clicked:', val), buttonstate.handleClicked(val)
-          ),
-          testChange: (value: string) => console.log('Model changed:', value),
-        },
-      });
-    })),
+    loadComponent: () =>
+      import('./components/my-button').then((m) =>
+        connectState(
+          m.MyButtonComponent,
+          [ButtonStore, GlobalStore] as const,
+          (buttonstate, globalstate) => {
+            return defineConnectOptions<typeof MyButtonComponent>({
+              inputs: {
+                label: buttonstate.label,
+                test: () => 'set from route',
+                user: globalstate.user,
+              },
+              outputs: {
+                clicked: (val: string) => (
+                  console.log('Button clicked:', val),
+                  buttonstate.handleClicked(val)
+                ),
+                testChange: (value: string) =>
+                  console.log('Model changed:', value),
+              },
+            });
+          }
+        )
+      ),
   },
   {
     path: 'another',

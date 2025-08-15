@@ -52,22 +52,22 @@ export type StrictExtractOutputs<T> = NoExtraProps<
   ExtractOutputs<T>
 >;
 
-export type StrictConnectOptions<TComp extends Type<any>> = {
-  inputs: StrictExtractInputs<InstanceType<TComp>>;
-  outputs: StrictExtractOutputs<InstanceType<TComp>>;
+export type StrictConnectOptions<T> = {
+  inputs: StrictExtractInputs<T>;
+  outputs: StrictExtractOutputs<T>;
 };
 
-export function defineConnectOptions<TComp extends Type<any>>(
-  options: StrictConnectOptions<TComp>
-): StrictConnectOptions<TComp> {
+export function defineConnectOptions<T>(
+  options: StrictConnectOptions<T>
+): StrictConnectOptions<T> {
   return options;
 }
 
 export function connect<TComp extends Type<any>>(
   component: TComp,
   optionsFactory: () => StrictConnectOptions<TComp> = () => ({
-    inputs: {} as StrictExtractInputs<InstanceType<TComp>>,
-    outputs: {} as StrictExtractOutputs<InstanceType<TComp>>,
+    inputs: {} as StrictExtractInputs<TComp>,
+    outputs: {} as StrictExtractOutputs<TComp>,
   })
 ): Type<any> {
   @Component({
