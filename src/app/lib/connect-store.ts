@@ -1,5 +1,5 @@
 import { inject, isSignal, Type } from '@angular/core';
-import { connect, ExtractInputs, ExtractOutputs, StrictExtractInputs, StrictExtractOutputs } from './connect';
+import { connect, ExtractOutputs, StrictExtractInputs, StrictExtractOutputs } from './connect';
 
 export function bindStore<T extends Type<any>, TComp extends Type<any>>(
   type: T,

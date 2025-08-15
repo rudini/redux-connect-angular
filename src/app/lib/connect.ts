@@ -68,12 +68,12 @@ export function connect<TComp extends Type<any>>(
   })
 ): Type<any> {
   @Component({
-    template: ``,
+    template: '',
   })
   class ConnectedWrapper implements OnDestroy {
-    private readonly envInjector = inject(EnvironmentInjector);
-    private readonly vcr = inject(ViewContainerRef);
-    private compRef: ComponentRef<InstanceType<TComp>> | undefined;
+    readonly #envInjector = inject(EnvironmentInjector);
+    readonly #vcr = inject(ViewContainerRef);
+    readonly #compRef: ComponentRef<InstanceType<TComp>> | undefined;
 
     constructor() {
       const bindings = optionsFactory();
@@ -83,13 +83,13 @@ export function connect<TComp extends Type<any>>(
       const outputBindings = Object.entries(bindings.outputs || {}).map(
         ([key, handler]) => outputBinding(key, handler as (value: any) => void)
       );
-      this.compRef = this.vcr.createComponent(component, {
-        environmentInjector: this.envInjector,
+      this.#compRef = this.#vcr.createComponent(component, {
+        environmentInjector: this.#envInjector,
         bindings: [...inputBindings, ...outputBindings],
       });
     }
     ngOnDestroy(): void {
-      this.compRef?.destroy();
+      this.#compRef?.destroy();
     }
   }
 

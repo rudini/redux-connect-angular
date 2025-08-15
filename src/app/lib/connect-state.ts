@@ -28,33 +28,33 @@ export function connectState<
   })
 ): Type<any> {
   @Component({
-    template: ``,
+    template: ''
   })
   class ConnectedWrapper implements OnDestroy {
-    private readonly envInjector = inject(EnvironmentInjector);
-    private readonly vcr = inject(ViewContainerRef);
-    private compRef: ComponentRef<InstanceType<TComp>> | undefined;
-    instances: { [K in keyof TStates]: InstanceType<TStates[K]> };
+    readonly #envInjector = inject(EnvironmentInjector);
+    readonly #vcr = inject(ViewContainerRef);
+    readonly #compRef: ComponentRef<InstanceType<TComp>> | undefined;
+    readonly #instances: { [K in keyof TStates]: InstanceType<TStates[K]> };
 
     constructor() {
-      this.instances = types.map((t) => inject(t)) as {
+      this.#instances = types.map((t) => inject(t)) as {
         [K in keyof TStates]: InstanceType<TStates[K]>;
       };
 
-      const bindings = optionsFactory(...this.instances);
+      const bindings = optionsFactory(...this.#instances);
       const inputBindings = Object.entries(bindings.inputs || {}).map(
         ([key, value]) => inputBinding(key, value as () => any)
       );
       const outputBindings = Object.entries(bindings.outputs || {}).map(
         ([key, handler]) => outputBinding(key, handler as (value: any) => void)
       );
-      this.compRef = this.vcr.createComponent(component, {
-        environmentInjector: this.envInjector,
+      this.#compRef = this.#vcr.createComponent(component, {
+        environmentInjector: this.#envInjector,
         bindings: [...inputBindings, ...outputBindings],
       });
     }
     ngOnDestroy(): void {
-      this.compRef?.destroy();
+      this.#compRef?.destroy();
     }
   }
 
