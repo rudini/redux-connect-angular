@@ -33,7 +33,7 @@ export function connectState<
   class ConnectedWrapper implements OnDestroy {
     private readonly envInjector = inject(EnvironmentInjector);
     private readonly vcr = inject(ViewContainerRef);
-    private compRef: ComponentRef<TComp> | undefined;
+    private compRef: ComponentRef<InstanceType<TComp>> | undefined;
     instances: { [K in keyof TStates]: InstanceType<TStates[K]> };
 
     constructor() {
