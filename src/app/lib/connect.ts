@@ -9,8 +9,9 @@ import {
   outputBinding,
   Type,
   ViewContainerRef,
+  Signal,
+  OutputEmitterRef,
 } from '@angular/core';
-import { Signal, OutputEmitterRef } from '@angular/core';
 
 export type ExtractInputs<T> = {
   [K in keyof T as T[K] extends Signal<infer U>
@@ -38,13 +39,17 @@ export type ExtractOutputs<T> = {
     : never]: T[K] extends ModelSignal<infer U> ? (value: U) => void : never;
 };
 
-type NoExtraProps<Shape, Actual extends Shape> =
-  Actual & { [K in Exclude<keyof Actual, keyof Shape>]: never };
+type NoExtraProps<Shape, Actual extends Shape> = Actual & {
+  [K in Exclude<keyof Actual, keyof Shape>]: never;
+};
 
-type StrictExtractInputs<T>  = NoExtraProps<ExtractInputs<T>,  ExtractInputs<T>>;
-type StrictExtractOutputs<T> = NoExtraProps<ExtractOutputs<T>, ExtractOutputs<T>>;
+export type StrictExtractInputs<T> = NoExtraProps<ExtractInputs<T>, ExtractInputs<T>>;
+export type StrictExtractOutputs<T> = NoExtraProps<
+  ExtractOutputs<T>,
+  ExtractOutputs<T>
+>;
 
-type StrictConnectOptions<TComp extends Type<any>> = {
+export type StrictConnectOptions<TComp extends Type<any>> = {
   inputs: StrictExtractInputs<InstanceType<TComp>>;
   outputs: StrictExtractOutputs<InstanceType<TComp>>;
 };
@@ -57,12 +62,9 @@ export function defineConnectOptions<TComp extends Type<any>>(
 
 export function connect<TComp extends Type<any>>(
   component: TComp,
-  optionsFactory: () => {
-    inputs: ExtractInputs<InstanceType<TComp>>;
-    outputs: ExtractOutputs<InstanceType<TComp>>;
-  } = () => ({
-    inputs: {} as ExtractInputs<InstanceType<TComp>>,
-    outputs: {} as ExtractOutputs<InstanceType<TComp>>,
+  optionsFactory: () => StrictConnectOptions<TComp> = () => ({
+    inputs: {} as StrictExtractInputs<InstanceType<TComp>>,
+    outputs: {} as StrictExtractOutputs<InstanceType<TComp>>,
   })
 ): Type<any> {
   @Component({
@@ -71,7 +73,7 @@ export function connect<TComp extends Type<any>>(
   class ConnectedWrapper implements OnDestroy {
     private readonly envInjector = inject(EnvironmentInjector);
     private readonly vcr = inject(ViewContainerRef);
-    private compRef: ComponentRef<TComp> | undefined;
+    private compRef: ComponentRef<InstanceType<TComp>> | undefined;
 
     constructor() {
       const bindings = optionsFactory();
