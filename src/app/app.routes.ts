@@ -5,10 +5,10 @@ import { ButtonStore } from './store/store';
 import { inject } from '@angular/core';
 import { connect, defineConnectOptions } from './lib/connect';
 import { TestComponent } from './components/test';
-import { bindStore } from './lib/connect-store';
 import { MyButtonComponent } from './components/my-button';
 import { connectState } from './lib/connect-state';
 import { GlobalStore } from './store/global-store';
+import { withAutoMapping } from './lib/with-automapping';
 
 // what if we can implement all components as dumb components and connect them to the store in the routes?
 // what if we can use dependency injection to inject the store into the routes?
@@ -36,13 +36,6 @@ export const routes: Routes = [
         },
       });
     }),
-  },
-  {
-    path: 'bindStore',
-    loadComponent: () =>
-      import('./components/my-button').then((m) =>
-        bindStore(ButtonStore, m.MyButtonComponent)
-      ),
   },
   {
     path: 'wrapped',
@@ -76,8 +69,23 @@ export const routes: Routes = [
         )
       ),
   },
+    {
+    path: 'connect-with-states',
+    loadComponent: () =>
+      import('./components/my-button').then((m) =>
+        connectState(
+          m.MyButtonComponent,
+          [ButtonStore, GlobalStore],
+          withAutoMapping
+        )
+      ),
+  },
   {
     path: 'another',
     component: TestComponent,
   },
 ];
+
+
+
+
