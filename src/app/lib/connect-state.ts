@@ -11,29 +11,28 @@ import {
 } from '@angular/core';
 import { ExtractInputs, ExtractOutputs } from './connect';
 
-export function connectState<
-  TComp extends Type<any>,
-  TStates extends readonly Type<any>[]
->(
-  component: TComp,
+let stateWrapperIdCounter = 0;
+
+export function connectState<T, TStates extends Type<any>[]>(
+  component: Type<T>,
   types: TStates,
   optionsFactory: (
     ...states: { [K in keyof TStates]: InstanceType<TStates[K]> }
   ) => {
-    inputs: ExtractInputs<InstanceType<TComp>>;
-    outputs: ExtractOutputs<InstanceType<TComp>>;
-  } = () => ({
-    inputs: {} as ExtractInputs<InstanceType<TComp>>,
-    outputs: {} as ExtractOutputs<InstanceType<TComp>>,
-  })
+    inputs: Partial<ExtractInputs<T>>;
+    outputs: Partial<ExtractOutputs<T>>;
+  } = () => ({ inputs: {}, outputs: {} })
 ): Type<any> {
+  const wrapperId = `connect-state-wrapper-${++stateWrapperIdCounter}`;
+
   @Component({
     template: '',
+    host: { 'data-wrapper-id': wrapperId },
   })
   class ConnectedWrapper implements OnDestroy {
     readonly #envInjector = inject(EnvironmentInjector);
     readonly #vcr = inject(ViewContainerRef);
-    readonly #compRef: ComponentRef<InstanceType<TComp>> | undefined;
+    readonly #compRef: ComponentRef<T> | undefined;
     readonly #instances: { [K in keyof TStates]: InstanceType<TStates[K]> };
 
     constructor() {

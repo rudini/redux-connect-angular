@@ -7,7 +7,7 @@ import {
   inject,
 } from '@angular/core';
 import { RouterLink, RouterModule } from '@angular/router';
-import { connect, defineConnectOptions } from '../lib/connect';
+import { connect, StrictConnectOptions } from '../lib/connect';
 import { ButtonStore } from '../store/store';
 
 @Component({
@@ -44,7 +44,7 @@ export const Wrapped = connect(MyButtonComponent, () => {
   // Inject the store once inside this factory function or use imported functions
   const buttonStore = inject(ButtonStore);
 
-  return defineConnectOptions<MyButtonComponent>({
+  return {
     inputs: {
       label: buttonStore.label, // Use the injected store instance
       test: () => 'set from route', // Example of one time binding input
@@ -55,5 +55,5 @@ export const Wrapped = connect(MyButtonComponent, () => {
       ), // Use the injected store instance
       testChange: (value: string) => console.log('Model changed:', value), // Example of a model output
     },
-  });
+  } satisfies StrictConnectOptions<MyButtonComponent>;
 });

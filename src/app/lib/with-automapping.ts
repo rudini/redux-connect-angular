@@ -2,38 +2,33 @@ import { Signal } from '@angular/core';
 import { ExtractInputs, ExtractOutputs } from './connect';
 
 // Helper function to check if a value is a signal
-function isSignal(value: any): value is Signal<any> {
-  return value && typeof value === 'function' && 'subscribe' in value;
+function isSignal(value: unknown): value is Signal<unknown> {
+  return value !== null && typeof value === 'function' && 'subscribe' in value;
 }
 
 // Helper function to merge multiple store instances into a single object
-function mergeStores<TStates extends readonly any[]>(
-  ...stores: TStates
-): Record<string, any> {
-  const merged: Record<string, any> = {};
+function mergeStores(...stores: object[]): Record<string, unknown> {
+  const merged: Record<string, unknown> = {};
 
-  stores.forEach((store) => {
-    if (!store) return;
+  for (const store of stores) {
+    if (!store) continue;
 
-    // Get all own properties (including signals defined as properties)
-    const ownProps = Object.getOwnPropertyNames(store);
-    ownProps.forEach(prop => {
-      if (!prop.startsWith('#') && !prop.startsWith('_')) { // Skip private properties
-        merged[prop] = store[prop];
+    for (const prop of Object.getOwnPropertyNames(store)) {
+      if (!prop.startsWith('#') && !prop.startsWith('_')) {
+        merged[prop] = (store as Record<string, unknown>)[prop];
       }
-    });
+    }
 
-    // Get all prototype methods (including handle methods)
     const proto = Object.getPrototypeOf(store);
     if (proto && proto !== Object.prototype) {
-      const protoProps = Object.getOwnPropertyNames(proto);
-      protoProps.forEach(prop => {
-        if (prop !== 'constructor' && typeof store[prop] === 'function') {
-          merged[prop] = store[prop].bind(store); // Bind methods to original store instance
+      for (const prop of Object.getOwnPropertyNames(proto)) {
+        const value = (store as Record<string, unknown>)[prop];
+        if (prop !== 'constructor' && typeof value === 'function') {
+          merged[prop] = value.bind(store);
         }
-      });
+      }
     }
-  });
+  }
 
   return merged;
 }
@@ -46,62 +41,52 @@ function handlerToOutputName(handlerName: string): string {
   return withoutHandle.charAt(0).toLowerCase() + withoutHandle.slice(1);
 }
 
-export function withAutoMapping<
-  TComp extends any,
-  TStates extends readonly any[]
->(
-  ...stores: { [K in keyof TStates]: TStates[K] }
+export function withAutoMapping<T>(
+  ...stores: object[]
 ): {
-  inputs: ExtractInputs<TComp>;
-  outputs: ExtractOutputs<TComp>;
+  inputs: ExtractInputs<T>;
+  outputs: ExtractOutputs<T>;
 } {
   // Merge all stores into a single object
   const mergedStores = mergeStores(...stores);
 
   // Extract inputs (signals)
-  const storeInputs = Object.keys(mergedStores).filter((key) =>
+  const signalKeys = Object.keys(mergedStores).filter((key) =>
     isSignal(mergedStores[key])
   );
 
-  const inputs = storeInputs.reduce(
-    (acc: { [key: string]: any }, key) => ({
-      ...acc,
-      [key]: mergedStores[key], // Direct reference to the signal
-    }),
-    {}
-  ) as ExtractInputs<TComp>;
+  const inputs = Object.fromEntries(
+    signalKeys.map((key) => [key, mergedStores[key]])
+  ) as ExtractInputs<T>;
 
   // Extract outputs (handle methods)
-  const storeOutputs = Object.keys(mergedStores).filter(
+  const handlerKeys = Object.keys(mergedStores).filter(
     (key) => key.startsWith('handle') && typeof mergedStores[key] === 'function'
   );
 
-  const outputs = storeOutputs.reduce(
-    (acc: { [key: string]: any }, key) => {
-      const outputName = handlerToOutputName(key);
-      return {
-        ...acc,
-        [outputName]: (value: any) => mergedStores[key](value),
-      };
-    },
-    {}
-  ) as ExtractOutputs<TComp>;
+  const outputs = Object.fromEntries(
+    handlerKeys.map((key) => [
+      handlerToOutputName(key),
+      (value: unknown) => (mergedStores[key] as Function)(value),
+    ])
+  ) as ExtractOutputs<T>;
 
   // Handle model change outputs (for two-way binding)
   // Look for signals that might need change handlers
-  const modelChangeOutputs = storeInputs.reduce(
-    (acc: { [key: string]: any }, key) => {
-      const changeHandlerName = `handle${key.charAt(0).toUpperCase() + key.slice(1)}Change`;
-      if (mergedStores[changeHandlerName] && typeof mergedStores[changeHandlerName] === 'function') {
-        acc[`${key}Change`] = (value: any) => mergedStores[changeHandlerName](value);
-      }
-      return acc;
-    },
-    {}
+  const modelChangeOutputs = Object.fromEntries(
+    signalKeys
+      .filter((key) => {
+        const handler = `handle${key.charAt(0).toUpperCase() + key.slice(1)}Change`;
+        return typeof mergedStores[handler] === 'function';
+      })
+      .map((key) => {
+        const handler = `handle${key.charAt(0).toUpperCase() + key.slice(1)}Change`;
+        return [`${key}Change`, (value: unknown) => (mergedStores[handler] as Function)(value)];
+      })
   );
 
   return {
     inputs,
-    outputs: { ...outputs, ...modelChangeOutputs } as ExtractOutputs<TComp>,
+    outputs: { ...outputs, ...modelChangeOutputs } as ExtractOutputs<T>,
   };
 }

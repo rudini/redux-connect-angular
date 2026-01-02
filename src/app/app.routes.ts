@@ -3,7 +3,7 @@ import { Routes } from '@angular/router';
 import { ButtonStore } from './store/store';
 
 import { inject } from '@angular/core';
-import { connect, defineConnectOptions } from './lib/connect';
+import { connect, StrictConnectOptions } from './lib/connect';
 import { TestComponent } from './components/test';
 import { MyButtonComponent } from './components/my-button';
 import { connectState } from './lib/connect-state';
@@ -22,11 +22,12 @@ export const routes: Routes = [
       const buttonStore = inject(ButtonStore);
       const globalStore = inject(GlobalStore);
 
-      return defineConnectOptions<MyButtonComponent>({
+      return {
         inputs: {
           label: () => buttonStore.label(), // Use the injected store instance
           test: () => 'set from route', // Example of one time binding input
-          user: () => globalStore.user(),
+          user: () => globalStore.user(), // Example of using another store
+
         },
         outputs: {
           clicked: (val: string) => (
@@ -34,7 +35,7 @@ export const routes: Routes = [
           ), // Use the injected store instance
           testChange: (value: string) => console.log('Model changed:', value), // Example of a model output
         },
-      });
+      } satisfies StrictConnectOptions<MyButtonComponent>;
     }),
   },
   {
@@ -50,7 +51,7 @@ export const routes: Routes = [
           m.MyButtonComponent,
           [ButtonStore, GlobalStore] as const,
           (buttonstate, globalstate) => {
-            return defineConnectOptions<MyButtonComponent>({
+            return {
               inputs: {
                 label: buttonstate.label,
                 test: () => 'set from route',
@@ -64,7 +65,7 @@ export const routes: Routes = [
                 testChange: (value: string) =>
                   console.log('Model changed:', value),
               },
-            });
+            } satisfies StrictConnectOptions<MyButtonComponent>;
           }
         )
       ),
@@ -85,7 +86,3 @@ export const routes: Routes = [
     component: TestComponent,
   },
 ];
-
-
-
-
