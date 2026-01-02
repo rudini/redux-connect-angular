@@ -10,10 +10,6 @@ import { connectState } from './lib/connect-state';
 import { GlobalStore } from './store/global-store';
 import { withAutoMapping } from './lib/with-automapping';
 
-// what if we can implement all components as dumb components and connect them to the store in the routes?
-// what if we can use dependency injection to inject the store into the routes?
-// what if we can use imported functions like static selectors form signal store to bind inputs and outputs?
-
 export const routes: Routes = [
   {
     path: '',
